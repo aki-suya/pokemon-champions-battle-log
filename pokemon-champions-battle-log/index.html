@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Pokémon Champions Battle Log</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header class="app-header">
+    <div>
+      <h1>Pokémon Champions Battle Log</h1>
+      <p>対戦記録・統計・ダメージ計算をまとめて管理</p>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <nav class="page-tabs">
+      <button type="button" class="page-tab active" data-page="battlePage">
+        対戦登録
+      </button>
+      <button type="button" class="page-tab" data-page="damagePage">
+        ダメージ計算
+      </button>
+      <button type="button" class="page-tab" data-page="historyPage">
+        対戦履歴
+      </button>
+      <button type="button" class="page-tab" data-page="statsPage">
+        統計
+      </button>
+      <button type="button" class="page-tab" data-page="teamPage">
+        パーティ登録
+      </button>
+      <button type="button" class="page-tab" data-page="teamListPage">
+  パーティ一覧
+</button>
+    </nav>
+
+    <!-- 対戦登録ページ -->
+    <section id="battlePage" class="page-section active">
+      <div class="page-title">
+        <h2>対戦登録</h2>
+        <p>相手パーティ、選出順、勝敗、メモを記録します。</p>
+      </div>
+
+      <section class="card">
+        <h3>使用する自分のパーティ</h3>
+
+        <div class="form-group">
+          <label for="myTeamSelect">使用パーティ</label>
+          <select id="myTeamSelect"></select>
+        </div>
+
+        <div id="selectedMyTeamPreview" class="selected-team-preview"></div>
+      </section>
+
+<section class="card">
+  <h3>相手パーティ</h3>
+
+  <div class="form-group">
+    <label for="opponentTrainerName">相手トレーナー名</label>
+    <input
+      type="text"
+      id="opponentTrainerName"
+      placeholder="例：トレーナーなど"
+    >
+  </div>
+
+  <div class="opponent-input-grid">
+          <input type="text" id="opponent1" list="pokemonNameList" placeholder="相手ポケモン1">
+          <input type="text" id="opponent2" list="pokemonNameList" placeholder="相手ポケモン2">
+          <input type="text" id="opponent3" list="pokemonNameList" placeholder="相手ポケモン3">
+          <input type="text" id="opponent4" list="pokemonNameList" placeholder="相手ポケモン4">
+          <input type="text" id="opponent5" list="pokemonNameList" placeholder="相手ポケモン5">
+          <input type="text" id="opponent6" list="pokemonNameList" placeholder="相手ポケモン6">
+        </div>
+      </section>
+
+      <section class="card compact-selection-card">
+  <h3>選出記録</h3>
+  <p class="small-text">自分の選出と相手の選出・持ち物を記録します。</p>
+
+  <div class="battle-selection-layout">
+    <div class="selection-column">
+      <div id="mySelectionArea" class="selection-area compact-selection-area"></div>
+    </div>
+
+    <div class="selection-column">
+      <div id="selectionArea" class="selection-area compact-selection-area"></div>
+    </div>
+  </div>
+</section>
+
+      <section class="card">
+        <h3>試合結果</h3>
+
+        <div class="form-group">
+          <label for="battleResult">勝敗</label>
+          <select id="battleResult">
+            <option value="win">勝ち</option>
+            <option value="lose">負け</option>
+            <option value="draw">引き分け</option>
+            <option value="unknown">未記録</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="battleMemo">メモ</label>
+          <textarea id="battleMemo" rows="5" placeholder="選出理由、きつかったポケモン、持ち物予想など"></textarea>
+        </div>
+
+        <button type="button" id="saveBattleButton" class="main-button">
+          対戦記録を保存
+        </button>
+      </section>
+    </section>
+
+    <!-- ダメージ計算ページ -->
+<section id="damagePage" class="page-section">
+  <div class="page-title">
+    <h2>ダメージ計算</h2>
+    <p>左右のパーティからポケモンを選び、中央で条件を調整して計算します。</p>
+  </div>
+
+  <div class="damage-board-layout">
+    <!-- 左：自分のパーティ -->
+
+    <aside class="damage-party-sidebar">
+      <h3>自分のパーティ</h3>
+  
+      <div id="damageMyPartyList" class="damage-party-icon-list">
+        <p class="small-text">使用パーティを選択してください。</p>
+      </div>
+    </aside>
+
+    <!-- 中央：ダメージ計算ボード -->
+<div class="damage-board-main">
+  <div class="swap-button-area">
+    <button type="button" id="swapAttackDefenseButton" class="swap-main-button">
+      ⇄ 攻撃側と防御側を入れ替える
+    </button>
+  </div>
+
+  <div class="damage-board-panels">
+        <!-- 攻撃側 -->
+        <section class="card damage-side-panel attacker-panel">
+          <h3>攻撃側</h3>
+
+          <div class="form-group">
+            <label for="attackerSide">攻撃側の種類</label>
+            <select id="attackerSide">
+              <option value="my">自分</option>
+              <option value="opponent">相手</option>
+              <option value="manual">自由選択</option>
+            </select>
+          </div>
+
+
+<div class="top-compact-row attacker-top-compact-row">
+  <div class="top-compact-card compact-preview-card pokemon-top-card">
+    <label for="attackerPokemon" class="compact-label">攻撃側ポケモン</label>
+    <input
+      type="text"
+      id="attackerPokemon"
+      list="attackerPokemonList"
+      placeholder="攻撃側ポケモン名"
+      class="compact-pokemon-name-input"
+    >
+
+    <div id="attackerPokemonPreview" class="pokemon-preview large-preview"></div>
+
+    <div class="compact-mega-row">
+      <button type="button" id="megaAttackerButton" class="sub-button compact-mega-button">
+        攻撃側メガ不可
+      </button>
+      <p id="attackerMegaStatus" class="small-note compact-status-note"></p>
+    </div>
+  </div>
+
+  <div class="damage-grid damage-item-ability-row">
+    <div class="form-group">
+      <label for="damageAttackerItem">攻撃側持ち物</label>
+      <input
+        type="text"
+        id="damageAttackerItem"
+        list="itemNameDataList"
+        placeholder="例：いのちのたま"
+      >
+    </div>
+
+    <div class="form-group ability-input-area">
+      <label for="attackerAbility">攻撃側特性</label>
+      <input
+        type="text"
+        id="attackerAbility"
+        list="attackerAbilityList"
+        placeholder="例：てきおうりょく"
+      >
+      <div id="attackerAbilityConditionBox" class="context-condition-box hidden"></div>
+
+      
+    </div>
+  </div>
+
+
+
+  <div class="top-compact-card compact-move-card">
+    <label for="damageMove" class="compact-label">技</label>
+    <input
+      type="text"
+      id="damageMove"
+      list="availableDamageMoveList"
+      placeholder="技名を入力"
+    >
+
+    <div id="moveConditionBox" class="context-condition-box hidden"></div>
+
+    <div id="attackerMoveButtons" class="compact-move-buttons">
+      <p class="small-text">自分のポケモンを選ぶと登録済みの技が表示されます。</p>
+    </div>
+
+</div>
+    <div class="combo-damage-area">
+  <div class="combo-damage-header">
+    <span>複数技計算</span>
+
+    <button type="button" id="clearComboMovesButton" class="combo-mini-button">
+      リセット
+    </button>
+  </div>
+
+  <div id="comboMoveList" class="combo-move-list">
+    <span class="combo-empty-text">技を追加してください。</span>
+  </div>
+
+  <button type="button" id="addComboMoveButton" class="sub-button combo-add-button">
+    現在の技を追加
+  </button>
+</div>
+
+
+
+<div class="combo-effect-split">
+  <div class="combo-effect-box damage-effect-box">
+    <div class="combo-effect-title">定数ダメージ</div>
+
+    <select id="comboDamagePreset">
+      <option value="stealthRock_1_8">ステルスロック 1/8</option>
+      <option value="stealthRock_1_4">ステルスロック 1/4</option>
+      <option value="stealthRock_1_2">ステルスロック 1/2</option>
+      <option value="sand_1_16">砂ダメージ 1/16</option>
+      <option value="leechSeed_1_8">やどりぎのタネ 1/8</option>
+      <option value="poison_1_8">どく 1/8</option>
+      <option value="burn_1_16">やけど 1/16</option>
+      <option value="custom">カスタム定数ダメージ</option>
+    </select>
+
+    <div class="combo-fraction-row">
+      <input type="number" id="comboDamageCustomNumerator" value="1" min="1" class="combo-fraction-input">
+      <span>/</span>
+      <input type="number" id="comboDamageCustomDenominator" value="16" min="1" class="combo-fraction-input">
+    </div>
+
+    <button type="button" id="addComboDamageEffectButton" class="sub-button combo-add-button">
+      定数ダメージを追加
+    </button>
+  </div>
+
+  <div class="combo-effect-box heal-effect-box">
+    <div class="combo-effect-title">回復</div>
+
+    <select id="comboHealPreset">
+      <option value="leftovers_1_16">たべのこし 1/16</option>
+      <option value="blackSludge_1_16">くろいヘドロ 1/16</option>
+      <option value="sitrus_1_4">オボンのみ 1/4</option>
+      <option value="custom">カスタム回復</option>
+    </select>
+
+    <div class="combo-fraction-row">
+      <input type="number" id="comboHealCustomNumerator" value="1" min="1" class="combo-fraction-input">
+      <span>/</span>
+      <input type="number" id="comboHealCustomDenominator" value="16" min="1" class="combo-fraction-input">
+    </div>
+
+    <button type="button" id="addComboHealEffectButton" class="sub-button combo-add-button">
+      回復を追加
+    </button>
+  </div>
+</div>
+
+
+       
+<div class="hidden-damage-detail-values">
+  <input type="number" id="damageLevel" value="50" min="1" max="100">
+  <input type="number" id="movePower" placeholder="例：100">
+  <input type="text" id="moveType" placeholder="例：じめん">
+
+  <select id="moveCategory">
+    <option value="physical">物理</option>
+    <option value="special">特殊</option>
+  </select>
+
+  <input type="number" id="attackStat">
+</div>
+
+<h4 class="stat-group-title attacker-stat-title">攻撃側能力調整</h4>
+
+ <div class="form-group ev-slider-group damage-stat-row physical-stat-row attacker-physical-row">
+  <label>
+    攻撃：
+    <span id="attackerAttackEvValue">0</span>
+    <span class="real-stat-label">実数値：<span id="attackerAttackRealValue">-</span></span>
+  </label>
+
+  <input type="range" id="attackerAttackEvRange" min="0" max="32" step="1" value="0">
+  <input type="number" id="attackerAttackEv" min="0" max="32" value="0">
+
+  <div class="ev-button-line">
+    <div class="ev-button-row">
+      <button type="button" class="attacker-ev-button" data-target="attack" data-value="0">0</button>
+      <button type="button" class="attacker-ev-button" data-target="attack" data-value="2">2</button>
+      <button type="button" class="attacker-ev-button" data-target="attack" data-value="16">16</button>
+      <button type="button" class="attacker-ev-button" data-target="attack" data-value="32">32</button>
+    </div>
+
+    <div class="nature-button-row" data-nature-target="attackerAttackNature">
+      <button type="button" class="nature-button" data-value="1.1">↑</button>
+      <button type="button" class="nature-button active" data-value="1">－</button>
+      <button type="button" class="nature-button" data-value="0.9">↓</button>
+    </div>
+
+    <div class="stage-inline-box">
+      <span class="stage-label">ランク</span>
+      <select id="attackStage">
+        <option value="-6">-6</option>
+        <option value="-5">-5</option>
+        <option value="-4">-4</option>
+        <option value="-3">-3</option>
+        <option value="-2">-2</option>
+        <option value="-1">-1</option>
+        <option value="0" selected>0</option>
+        <option value="1">+1</option>
+        <option value="2">+2</option>
+        <option value="3">+3</option>
+        <option value="4">+4</option>
+        <option value="5">+5</option>
+        <option value="6">+6</option>
+      </select>
+    </div>
+  </div>
+
+  <select id="attackerAttackNature" class="hidden-nature-select">
+    <option value="0.9">下降</option>
+    <option value="1" selected>補正なし</option>
+    <option value="1.1">上昇</option>
+  </select>
+</div>
+<div class="form-group ev-slider-group damage-stat-row special-stat-row attacker-special-row">
+  <label>
+    特攻：
+    <span id="attackerSpAttackEvValue">0</span>
+    <span class="real-stat-label">実数値：<span id="attackerSpAttackRealValue">-</span></span>
+  </label>
+
+  <input type="range" id="attackerSpAttackEvRange" min="0" max="32" step="1" value="0">
+  <input type="number" id="attackerSpAttackEv" min="0" max="32" value="0">
+
+  <div class="ev-button-line">
+    <div class="ev-button-row">
+      <button type="button" class="attacker-ev-button" data-target="spAttack" data-value="0">0</button>
+      <button type="button" class="attacker-ev-button" data-target="spAttack" data-value="2">2</button>
+      <button type="button" class="attacker-ev-button" data-target="spAttack" data-value="16">16</button>
+      <button type="button" class="attacker-ev-button" data-target="spAttack" data-value="32">32</button>
+    </div>
+
+    <div class="nature-button-row" data-nature-target="attackerSpAttackNature">
+      <button type="button" class="nature-button" data-value="1.1">↑</button>
+      <button type="button" class="nature-button active" data-value="1">－</button>
+      <button type="button" class="nature-button" data-value="0.9">↓</button>
+    </div>
+
+    <div class="stage-inline-box">
+      <span class="stage-label">ランク</span>
+      <select id="spAttackStage">
+        <option value="-6">-6</option>
+        <option value="-5">-5</option>
+        <option value="-4">-4</option>
+        <option value="-3">-3</option>
+        <option value="-2">-2</option>
+        <option value="-1">-1</option>
+        <option value="0" selected>0</option>
+        <option value="1">+1</option>
+        <option value="2">+2</option>
+        <option value="3">+3</option>
+        <option value="4">+4</option>
+        <option value="5">+5</option>
+        <option value="6">+6</option>
+      </select>
+    </div>
+  </div>
+
+  <select id="attackerSpAttackNature" class="hidden-nature-select">
+    <option value="0.9">下降</option>
+    <option value="1" selected>補正なし</option>
+    <option value="1.1">上昇</option>
+  </select>
+</div>
+
+<p class="small-text hidden-total-point">
+  攻撃側ポイント合計：
+  <strong id="attackerAbilityPointTotal">0</strong> / 66
+</p>
+
+<div class="option-panel attacker-option-panel">
+  <h3>攻撃側持ち物</h3>
+
+  <div class="option-grid-2">
+    <label class="option-box">
+      <input type="checkbox" class="attacker-item-check" id="lifeOrbCheck" value="lifeOrb">
+      <span>いのちのたま</span>
+    </label>
+
+    <label class="option-box">
+      <input type="checkbox" class="attacker-item-check" id="choiceItemCheck" value="choiceItem">
+      <span>こだわり系</span>
+    </label>
+
+    <label class="option-box">
+      <input type="checkbox" class="attacker-item-check" id="typeBoostCheck" value="typeBoost">
+      <span>タイプ強化</span>
+    </label>
+
+    <label class="option-box">
+      <input type="checkbox" class="attacker-item-check" id="expertBeltCheck" value="expertBelt">
+      <span>達人の帯</span>
+    </label>
+  </div>
+
+  <div class="side-condition-strip attacker-side-condition-strip">
+  <span class="side-condition-title">攻撃側状態異常</span>
+
+  <label class="mini-check-pill">
+    <input type="checkbox" class="attacker-status-checkbox" value="burn">
+    <span>やけど</span>
+  </label>
+
+  <label class="mini-check-pill">
+    <input type="checkbox" class="attacker-status-checkbox" value="poison">
+    <span>どく</span>
+  </label>
+
+  <label class="mini-check-pill">
+    <input type="checkbox" class="attacker-status-checkbox" value="toxic">
+    <span>もうどく</span>
+  </label>
+
+  <label class="mini-check-pill">
+    <input type="checkbox" class="attacker-status-checkbox" value="paralyze">
+    <span>まひ</span>
+  </label>
+
+  <label class="mini-check-pill">
+    <input type="checkbox" class="attacker-status-checkbox" value="sleep">
+    <span>ねむり</span>
+  </label>
+
+  <label class="mini-check-pill">
+    <input type="checkbox" class="attacker-status-checkbox" value="freeze">
+    <span>こおり</span>
+  </label>
+</div>
+
+<select id="attackerStatusSelect" hidden>
+  <option value="">なし</option>
+  <option value="burn">やけど</option>
+  <option value="poison">どく</option>
+  <option value="toxic">もうどく</option>
+  <option value="paralyze">まひ</option>
+  <option value="sleep">ねむり</option>
+  <option value="freeze">こおり</option>
+</select>
+
+</div>
+
+
+
+
+
+
+<div class="damage-condition-extra">
+
+  <div class="move-condition-row" data-move-condition="defender-item">
+    <label>
+      <input type="checkbox" id="defenderHasItemCheck">
+      防御側が持ち物あり
+    </label>
+  </div>
+
+  <div class="move-condition-row" data-move-condition="attacker-no-item">
+    <label>
+      <input type="checkbox" id="attackerNoItemCheck">
+      攻撃側が持ち物なし
+    </label>
+  </div>
+
+  <div class="move-condition-row" data-move-condition="boost-condition">
+    <label>
+      <input type="checkbox" id="moveBoostConditionCheck">
+      条件付き威力上昇を適用
+    </label>
+  </div>
+
+  <div class="move-condition-row" data-move-condition="fainted-ally">
+    <label>
+      倒れた味方の数
+      <select id="faintedAllyCount">
+        <option value="0">0体</option>
+        <option value="1">1体</option>
+        <option value="2">2体</option>
+        <option value="3">3体</option>
+        <option value="4">4体</option>
+        <option value="5">5体</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="move-condition-row" data-move-condition="attacker-hp">
+    <label>
+      使用者の残りHP
+      <select id="attackerHpCondition">
+        <option value="100">100%</option>
+        <option value="75">75%</option>
+        <option value="50">50%</option>
+        <option value="33">33%</option>
+        <option value="20">20%</option>
+        <option value="10">10%</option>
+      </select>
+    </label>
+  </div>
+
+
+  <div class="move-condition-row" data-move-condition="weight">
+    <label>
+      攻撃側の重さkg
+      <input type="number" id="attackerWeightInput" min="0" step="0.1" placeholder="例：80">
+    </label>
+
+    <label>
+      防御側の重さkg
+      <input type="number" id="defenderWeightInput" min="0" step="0.1" placeholder="例：120">
+    </label>
+  </div>
+
+  <div class="move-condition-row" data-move-condition="speed">
+    <label>
+      攻撃側の素早さ
+      <input type="number" id="attackerSpeedInput" min="1" placeholder="例：120">
+    </label>
+
+    <label>
+      防御側の素早さ
+      <input type="number" id="defenderSpeedInput" min="1" placeholder="例：100">
+    </label>
+  </div>
+
+  <div class="move-condition-row" data-move-condition="fixed-damage">
+    <label>
+      固定ダメージ入力
+      <input type="number" id="fixedDamageInput" min="0" placeholder="例：50">
+    </label>
+  </div>
+
+  <div class="move-condition-row" data-move-condition="received-damage">
+    <label>
+      受けたダメージ
+      <input type="number" id="receivedDamageInput" min="0" placeholder="例：80">
+    </label>
+  </div>
+
+  <div class="move-condition-row" data-move-condition="multi-hit">
+  <label>
+    連続技回数
+    <select id="multiHitCount">
+      <option value="auto">自動</option>
+      <option value="2">2回</option>
+      <option value="3">3回</option>
+      <option value="4">4回</option>
+      <option value="5">5回</option>
+      <option value="10">10回</option>
+    </select>
+  </label>
+</div>
+
+<div class="move-condition-row" data-move-condition="low-hp">
+  <label class="mini-check-pill condition-inner-check">
+    <input type="checkbox" id="attackerLowHpCheck">
+    <span>HP1/3以下</span>
+  </label>
+</div>
+
+</div>
+
+
+        </section>
+
+        <!-- 防御側 -->
+        <section class="card damage-side-panel defender-panel">
+          <h3>防御側</h3>
+
+          <div class="form-group">
+            <label for="defenderSide">防御側の種類</label>
+            <select id="defenderSide">
+              <option value="opponent">相手</option>
+              <option value="my">自分</option>
+              <option value="manual">自由選択</option>
+            </select>
+          </div>
+
+<div class="top-compact-row defender-top-compact-row">
+  <div class="top-compact-card compact-preview-card pokemon-top-card">
+    <label for="defenderPokemon" class="compact-label">防御側ポケモン</label>
+    <input
+      type="text"
+      id="defenderPokemon"
+      list="defenderPokemonList"
+      placeholder="防御側ポケモン名"
+      class="compact-pokemon-name-input"
+    >
+
+    <div id="defenderPokemonPreview" class="pokemon-preview large-preview"></div>
+
+    <div class="compact-mega-row">
+      <button type="button" id="megaDefenderButton" class="sub-button compact-mega-button">
+        防御側メガ不可
+      </button>
+      <p id="defenderMegaStatus" class="small-note compact-status-note"></p>
+    </div>
+  </div>
+
+  <div class="damage-grid damage-item-ability-row">
+    <div class="form-group">
+      <label for="damageDefenderItem">防御側持ち物</label>
+      <input
+        type="text"
+        id="damageDefenderItem"
+        list="itemNameDataList"
+        placeholder="例：オッカのみ"
+      >
+    </div>
+
+    <div class="form-group ability-input-area">
+      <label for="defenderAbility">防御側特性</label>
+      <input
+        type="text"
+        id="defenderAbility"
+        list="defenderAbilityList"
+        placeholder="例：あついしぼう"
+      >
+      <div id="defenderAbilityConditionBox" class="context-condition-box hidden"></div>
+    </div>
+  </div>
+
+
+  <div class="top-compact-card compact-hp-card">
+    <div class="compact-hp-grid">
+      <div class="form-group">
+        <label for="defenderHp">最大HP</label>
+        <input type="number" id="defenderHp" placeholder="最大HP">
+      </div>
+
+      <div class="form-group">
+        <label for="defenderCurrentHpPercent">現在HP%</label>
+        <input type="number" id="defenderCurrentHpPercent" value="100" min="1" max="100">
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="hidden" id="defenseStat">
+
+<p class="ability-point-total hidden-total-point">
+  耐久能力ポイント合計：
+  <span id="defenderAbilityPointTotal">0</span> / 66
+</p>
+
+
+<div class="ev-adjust-grid compact-ev-grid defender-stat-group">
+  <h4 class="stat-group-title">防御側能力調整</h4>
+<div class="ev-slider-group damage-stat-row defender-hp-row active-by-category">
+              <label>
+                HP：
+                <span id="defenderHpEvValue">0</span>
+                <span class="real-stat-label">実数値：<span id="defenderHpRealValue">-</span></span>
+              </label>
+              <input type="range" id="defenderHpEvRange" min="0" max="32" step="1" value="0">
+              <input type="number" id="defenderHpEv" min="0" max="32" value="0">
+              <div class="ev-button-row">
+                <button type="button" class="ev-button" data-target="hp" data-value="0">0</button>
+                <button type="button" class="ev-button" data-target="hp" data-value="2">2</button>
+                <button type="button" class="ev-button" data-target="hp" data-value="16">16</button>
+                <button type="button" class="ev-button" data-target="hp" data-value="32">32</button>
+              </div>
+            </div>
+
+<div class="ev-slider-group damage-stat-row physical-stat-row defender-physical-row">
+  <label>
+    防御：
+    <span id="defenderDefenseEvValue">0</span>
+    <span class="real-stat-label">実数値：<span id="defenderDefenseRealValue">-</span></span>
+  </label>
+
+  <input type="range" id="defenderDefenseEvRange" min="0" max="32" step="1" value="0">
+  <input type="number" id="defenderDefenseEv" min="0" max="32" value="0">
+
+  <div class="ev-button-line">
+    <div class="ev-button-row">
+      <button type="button" class="ev-button" data-target="defense" data-value="0">0</button>
+      <button type="button" class="ev-button" data-target="defense" data-value="2">2</button>
+      <button type="button" class="ev-button" data-target="defense" data-value="16">16</button>
+      <button type="button" class="ev-button" data-target="defense" data-value="32">32</button>
+    </div>
+
+    <div class="nature-button-row" data-nature-target="defenderDefenseNature">
+      <button type="button" class="nature-button" data-value="1.1">↑</button>
+      <button type="button" class="nature-button active" data-value="1">－</button>
+      <button type="button" class="nature-button" data-value="0.9">↓</button>
+    </div>
+
+    <div class="stage-inline-box">
+      <span class="stage-label">ランク</span>
+      <select id="defenseStage">
+        <option value="-6">-6</option>
+        <option value="-5">-5</option>
+        <option value="-4">-4</option>
+        <option value="-3">-3</option>
+        <option value="-2">-2</option>
+        <option value="-1">-1</option>
+        <option value="0" selected>0</option>
+        <option value="1">+1</option>
+        <option value="2">+2</option>
+        <option value="3">+3</option>
+        <option value="4">+4</option>
+        <option value="5">+5</option>
+        <option value="6">+6</option>
+      </select>
+    </div>
+  </div>
+
+  <select id="defenderDefenseNature" class="hidden-nature-select">
+    <option value="0.9">下降</option>
+    <option value="1" selected>補正なし</option>
+    <option value="1.1">上昇</option>
+  </select>
+</div>
+
+<div class="ev-slider-group damage-stat-row special-stat-row defender-special-row">
+  <label>
+    特防：
+    <span id="defenderSpDefenseEvValue">0</span>
+    <span class="real-stat-label">実数値：<span id="defenderSpDefenseRealValue">-</span></span>
+  </label>
+
+  <input type="range" id="defenderSpDefenseEvRange" min="0" max="32" step="1" value="0">
+  <input type="number" id="defenderSpDefenseEv" min="0" max="32" value="0">
+
+  <div class="ev-button-line">
+    <div class="ev-button-row">
+      <button type="button" class="ev-button" data-target="spDefense" data-value="0">0</button>
+      <button type="button" class="ev-button" data-target="spDefense" data-value="2">2</button>
+      <button type="button" class="ev-button" data-target="spDefense" data-value="16">16</button>
+      <button type="button" class="ev-button" data-target="spDefense" data-value="32">32</button>
+    </div>
+
+    <div class="nature-button-row" data-nature-target="defenderSpDefenseNature">
+      <button type="button" class="nature-button" data-value="1.1">↑</button>
+      <button type="button" class="nature-button active" data-value="1">－</button>
+      <button type="button" class="nature-button" data-value="0.9">↓</button>
+    </div>
+
+    <div class="stage-inline-box">
+      <span class="stage-label">ランク</span>
+      <select id="spDefenseStage">
+        <option value="-6">-6</option>
+        <option value="-5">-5</option>
+        <option value="-4">-4</option>
+        <option value="-3">-3</option>
+        <option value="-2">-2</option>
+        <option value="-1">-1</option>
+        <option value="0" selected>0</option>
+        <option value="1">+1</option>
+        <option value="2">+2</option>
+        <option value="3">+3</option>
+        <option value="4">+4</option>
+        <option value="5">+5</option>
+        <option value="6">+6</option>
+      </select>
+    </div>
+  </div>
+
+  <select id="defenderSpDefenseNature" class="hidden-nature-select">
+    <option value="0.9">下降</option>
+    <option value="1" selected>補正なし</option>
+    <option value="1.1">上昇</option>
+  </select>
+</div>
+      
+
+<div class="form-group item-compact-area">
+  <label>防御側持ち物・壁</label>
+
+  <div class="item-check-grid">
+    <label><input type="checkbox" class="defender-item-check" id="assaultVestCheck" value="assaultVest"> チョッキ</label>
+    <label><input type="checkbox" class="defender-item-check" id="evioliteCheck" value="eviolite"> しんかのきせき</label>
+    <label><input type="checkbox" class="defender-item-check" id="resistBerryCheck" value="resistBerry"> 半減きのみ</label>
+<label>
+  <input type="checkbox" id="wallCheck">リフレクター・ひかりのかべ
+  
+</label>
+  </div>
+
+  <div class="side-condition-strip defender-side-condition-strip">
+  <span class="side-condition-title">防御側状態異常</span>
+
+  <label class="mini-check-pill">
+    <input type="checkbox" class="defender-status-checkbox" value="burn">
+    <span>やけど</span>
+  </label>
+
+  <label class="mini-check-pill">
+    <input type="checkbox" class="defender-status-checkbox" value="poison">
+    <span>どく</span>
+  </label>
+
+  <label class="mini-check-pill">
+    <input type="checkbox" class="defender-status-checkbox" value="toxic">
+    <span>もうどく</span>
+  </label>
+
+  <label class="mini-check-pill">
+    <input type="checkbox" class="defender-status-checkbox" value="paralyze">
+    <span>まひ</span>
+  </label>
+
+  <label class="mini-check-pill">
+    <input type="checkbox" class="defender-status-checkbox" value="sleep">
+    <span>ねむり</span>
+  </label>
+
+  <label class="mini-check-pill">
+    <input type="checkbox" class="defender-status-checkbox" value="freeze">
+    <span>こおり</span>
+  </label>
+</div>
+
+<select id="defenderStatusSelect" hidden>
+  <option value="">なし</option>
+  <option value="burn">やけど</option>
+  <option value="poison">どく</option>
+  <option value="toxic">もうどく</option>
+  <option value="paralyze">まひ</option>
+  <option value="sleep">ねむり</option>
+  <option value="freeze">こおり</option>
+</select>
+</div>
+
+
+        </section>
+
+        <div class="option-panel condition-option-panel wide-condition-panel">
+          <h3>補正条件</h3>
+
+          <div class="option-subtitle">攻撃側・技の状態</div>
+
+          <div class="condition-grid-2 compact-condition-grid">
+            <label class="option-box compact-check-option">
+              <input type="checkbox" id="criticalCheck">
+              <span>急所</span>
+            </label>
+          </div>
+
+          <input type="checkbox" id="burnCheck" hidden>
+
+          <input type="checkbox" id="stabCheck" hidden>
+          <input type="checkbox" id="spreadMoveCheck" hidden>
+          <input type="checkbox" id="reflectCheck" hidden>
+          <input type="checkbox" id="lightScreenCheck" hidden>
+
+          <select id="typeEffectiveness" hidden>
+            <option value="0">0倍</option>
+            <option value="0.25">0.25倍</option>
+            <option value="0.5">0.5倍</option>
+            <option value="1" selected>1倍</option>
+            <option value="2">2倍</option>
+            <option value="4">4倍</option>
+          </select>
+
+          <div class="wide-condition-strip">
+            <div class="wide-condition-group">
+              <span class="wide-condition-title">天候</span>
+
+              <label class="mini-check-pill">
+                <input type="checkbox" class="weather-checkbox" value="sun">
+                <span>晴れ</span>
+              </label>
+
+              <label class="mini-check-pill">
+                <input type="checkbox" class="weather-checkbox" value="rain">
+                <span>雨</span>
+              </label>
+
+              <label class="mini-check-pill">
+                <input type="checkbox" class="weather-checkbox" value="sand">
+                <span>砂嵐</span>
+              </label>
+
+              <label class="mini-check-pill">
+                <input type="checkbox" class="weather-checkbox" value="snow">
+                <span>雪</span>
+              </label>
+            </div>
+
+            <div class="wide-condition-group">
+              <span class="wide-condition-title">フィールド</span>
+
+              <label class="mini-check-pill">
+                <input type="checkbox" class="field-checkbox" value="electric">
+                <span>エレキ</span>
+              </label>
+
+              <label class="mini-check-pill">
+                <input type="checkbox" class="field-checkbox" value="grass">
+                <span>グラス</span>
+              </label>
+
+              <label class="mini-check-pill">
+                <input type="checkbox" class="field-checkbox" value="psychic">
+                <span>サイコ</span>
+              </label>
+
+              <label class="mini-check-pill">
+                <input type="checkbox" class="field-checkbox" value="misty">
+                <span>ミスト</span>
+              </label>
+            </div>
+          </div>
+
+          <select id="weather" hidden>
+            <option value="none">なし</option>
+            <option value="sun">晴れ</option>
+            <option value="rain">雨</option>
+            <option value="sand">砂嵐</option>
+            <option value="snow">雪</option>
+          </select>
+
+          <select id="fieldSelect" hidden>
+            <option value="none">なし</option>
+            <option value="electric">エレキフィールド</option>
+            <option value="grass">グラスフィールド</option>
+            <option value="psychic">サイコフィールド</option>
+            <option value="misty">ミストフィールド</option>
+          </select>
+        </div>
+      </div>
+
+    <!-- 結果 -->
+<section class="card damage-result-panel compact-result-panel">
+  <div class="damage-result-toggle-header">
+    <h3>計算結果</h3>
+
+    <div class="damage-result-header-actions">
+      <button type="button" id="copyDamageMemoButton" class="sub-button result-memo-button">
+        メモに追加
+      </button>
+
+      <button type="button" id="toggleDamageResultButton" class="sub-button damage-result-toggle-button">
+        結果をたたむ
+      </button>
+    </div>
+  </div>
+
+  <div class="compact-result-layout">
+    <div class="result-action-box">
+      <button type="button" id="calculateDamageButton" class="main-button result-calc-button">
+        ダメージ計算
+      </button>
+    </div>
+
+    <div id="damageResult" class="damage-result compact-damage-result">
+      技とポケモンを選択してください。
+    </div>
+
+    <div id="damageVisualResult" class="damage-visual-result compact-hp-result">
+      <div class="hp-bar-box">
+        <div class="hp-bar-track">
+          <div id="currentHpBar" class="hp-bar-current"></div>
+          <div id="damageRangeBar" class="hp-bar-range"></div>
+          <div id="guaranteedDamageBar" class="hp-bar-guaranteed"></div>
+        </div>
+      </div>
+
+      <div class="hp-bar-labels">
+        <span id="hpBarBeforeLabel">現在HP: -</span>
+        <span id="hpBarAfterLabel">被弾後HP: -</span>
+      </div>
+    </div>
+  </div>
+</section>
+    </div>
+    <!-- 右：相手のパーティ -->
+    <aside class="damage-party-sidebar">
+      <h3>相手のパーティ</h3>
+     
+      <div id="damageOpponentPartyList" class="damage-party-icon-list">
+        <p class="small-text">相手パーティを入力してください。</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+
+    <!-- 対戦履歴ページ -->
+    <section id="historyPage" class="page-section">
+      <div class="page-title">
+        <h2>対戦履歴</h2>
+        <p>保存済みの対戦を検索・編集・削除できます。</p>
+      </div>
+<section class="card">
+  <h3>使用パーティ別管理</h3>
+
+  <div class="form-group">
+    <label for="historyTeamFilter">表示する使用パーティ</label>
+    <select id="historyTeamFilter">
+      <option value="all">全パーティ</option>
+    </select>
+  </div>
+
+ <div class="history-team-tabs"></div>
+
+  <div id="teamHistorySummary"></div>
+</section>
+      <section class="card">
+        <h3>履歴検索</h3>
+
+        <div class="form-group">
+          <label for="historySearchInput">キーワード検索</label>
+          <input type="text" id="historySearchInput" placeholder="例：ガブリアス、ブリジュラス、マフォクシー">
+        </div>
+
+        <div class="form-group">
+          <label for="historyResultFilter">勝敗で絞り込み</label>
+          <select id="historyResultFilter">
+            <option value="all">すべて</option>
+            <option value="win">勝ち</option>
+            <option value="lose">負け</option>
+            <option value="draw">引き分け</option>
+          </select>
+        </div>
+
+        <button type="button" id="clearHistorySearchButton" class="sub-button">
+          検索をリセット
+        </button>
+      </section>
+
+      <section class="card">
+  <div class="history-list-header">
+    <div>
+      <h3>履歴一覧</h3>
+      <p id="selectedHistoryCountText" class="small-text">選択中：0件</p>
+    </div>
+
+<div class="history-bulk-actions">
+  <button type="button" id="toggleHistorySelectModeButton" class="sub-button">
+    選択して削除
+  </button>
+
+  <button type="button" id="selectAllVisibleHistoryButton" class="sub-button history-select-mode-only">
+    表示中を全選択
+  </button>
+
+  <button type="button" id="clearHistorySelectionButton" class="sub-button history-select-mode-only">
+    選択解除
+  </button>
+
+  <button type="button" id="bulkDeleteHistoryButton" class="delete-button history-select-mode-only" disabled>
+    選択した履歴を削除
+  </button>
+</div>
+  </div>
+
+  <div id="battleBoard"></div>
+</section>
+    </section>
+
+<!-- 統計ページ -->
+<section id="statsPage" class="page-section">
+  <div class="page-title">
+    <h2>統計</h2>
+    <p>パーティごとの勝率、苦手な相手、先発傾向を確認します。</p>
+  </div>
+
+  <section class="card">
+    <h3>使用パーティ別管理</h3>
+
+    <div class="history-team-tabs"></div>
+  </section>
+
+  <section class="card">
+    <h3>対戦統計</h3>
+    <div id="battleStats" class="battle-stats">
+      <p>まだ対戦記録はありません。</p>
+    </div>
+  </section>
+</section>
+
+<!-- パーティ登録ページ -->
+<section id="teamPage" class="page-section">
+  <div class="page-title">
+    <h2>パーティ登録</h2>
+    <p>自分のパーティ、技、持ち物、実数値を登録します。</p>
+  </div>
+
+  <section class="card">
+    <h3>自分のパーティ登録</h3>
+
+    <div class="form-group">
+      <label for="myTeamName">パーティ名</label>
+      <input type="text" id="myTeamName" placeholder="例：願いごとマフォクシー構築">
+    </div>
+
+    <div id="myTeamForm" class="team-form-grid"></div>
+
+    <button type="button" id="saveMyTeamButton" class="main-button">
+      自分のパーティを保存
+    </button>
+    <button
+  type="button"
+  id="cancelMyTeamEditButton"
+  class="sub-button"
+  style="display: none;"
+>
+  編集をキャンセル
+</button>
+  </section>
+</section>
+
+<!-- パーティ一覧ページ -->
+<section id="teamListPage" class="page-section">
+  <div class="page-title">
+    <h2>パーティ一覧</h2>
+    <p>登録済みパーティの確認、使用、編集、複製、削除ができます。</p>
+  </div>
+
+  <section class="card team-list-page-card">
+    <div class="team-list-page-header">
+      <div>
+        <h3>登録済みパーティ</h3>
+        <p class="small-text">詳細を開くと、技・持ち物・実数値まで確認できます。</p>
+      </div>
+
+      <button type="button" class="main-button" onclick="switchPage('teamPage')">
+        新規作成
+      </button>
+    </div>
+
+    <div id="myTeamListBoard"></div>
+  </section>
+</section>
+
+
+
+
+    <datalist id="pokemonNameList"></datalist>
+    <datalist id="moveNameDataList"></datalist>
+    <datalist id="damageMoveNameDataList"></datalist>
+    <datalist id="availableDamageMoveList"></datalist>
+    <datalist id="attackerPokemonList"></datalist>
+    <datalist id="defenderPokemonList"></datalist>
+<datalist id="attackerAbilityList"></datalist>
+<datalist id="defenderAbilityList"></datalist>
+<datalist id="natureNameList"></datalist>
+<datalist id="itemNameDataList"></datalist>
+  </main>
+
+<script src="data/pokemonData.js"></script>
+<script src="data/moveData.js"></script>
+<script src="data/itemData.js"></script>
+<script src="data/abilityData.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
